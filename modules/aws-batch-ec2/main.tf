@@ -67,25 +67,17 @@ Content-Type: text/x-shellscript; charset="us-ascii"
 #!/bin/bash
 # Terraform script
 
-# Nextflow needs the aws cli installed
-# https://www.nextflow.io/docs/latest/awscloud.html#aws-cli-installation
-# do not use $HOME
-sudo yum install -y bzip2 wget amazon-efs-utils
-cd /home/ec2-user
+cd $HOME
+sudo yum install -y bzip2 wget
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-bash Miniconda3-latest-Linux-x86_64.sh -b -f -p ./miniconda
-./miniconda/bin/conda install -c conda-forge -y awscli
+bash Miniconda3-latest-Linux-x86_64.sh -b -f -p $HOME/miniconda
+$HOME/miniconda/bin/conda install -c conda-forge -y awscli
 rm Miniconda3-latest-Linux-x86_64.sh
-
-# https://docs.aws.amazon.com/batch/latest/userguide/efs-volumes.html
-sudo systemctl enable --now amazon-ecs-volume-plugin || echo "Unable to start ecs-volume-plugin"
-
-# Expand individual docker storage if container requires more than defaul 10GB
-cloud-init-per once docker_options echo 'OPTIONS="$$${OPTIONS} --storage-opt dm.basesize=${var.docker_max_container_size}G"' >> /etc/sysconfig/docker
 
 ## Extra user data
 ${var.additional_user_data}
 TEMPLATE
+
 }
 
 # This is 100% stolen from the cloudposse/terraform-aws-autoscale-group
